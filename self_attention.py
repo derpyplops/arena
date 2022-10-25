@@ -1,7 +1,8 @@
 import torch as t
 import torch.nn as nn
 from torch import Tensor
-from fancy_einsum import einsum 
+from fancy_einsum import einsum
+import math
 
 def attention(Q: t.Tensor, K: t.Tensor, V: t.Tensor): 
     '''
@@ -14,12 +15,19 @@ def attention(Q: t.Tensor, K: t.Tensor, V: t.Tensor):
     V: shape (b, s, c)
     b = batch
     s = seq_len
-    e = embedding (hxc = e)
-    h = heads
+    c = dims
 
-    Return: shape (FILL THIS IN!)
+    Return: shape (b s s)
     '''
-    d_k = Q.shape[-1]
+    d_k = math.sqrt(Q.shape[-1])
     scaled_dot_prod: Tensor = einsum('b s1 c, b s2 c -> b s1 s2', Q, K) / d_k
     return scaled_dot_prod.softmax(dim=-1)
+
+def test_attention():
+    Q = t.randn(2, 3, 4)
+    K = t.randn(2, 3, 4)
+    V = t.randn(2, 3, 4)
+    assert attention(Q, K, V).shape == (2, 3, 3)
+
+test_attention()
 
