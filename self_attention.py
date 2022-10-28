@@ -22,7 +22,7 @@ def singlehead_attention(Q: t.Tensor, K: t.Tensor, V: t.Tensor):
     '''
     d_k = math.sqrt(Q.shape[-1])
     scaled_dot_prod: Tensor = einsum('b s1 c, b s2 c -> b s1 s2', Q, K) / d_k
-    return scaled_dot_prod.softmax(dim=-1)
+    return scaled_dot_prod.softmax(dim=-1) @ V
 
 def masked_attention(Q: t.Tensor, K: t.Tensor, V: t.Tensor, mask: t.Tensor):
     '''
@@ -35,12 +35,12 @@ def masked_attention(Q: t.Tensor, K: t.Tensor, V: t.Tensor, mask: t.Tensor):
     c = dims
 
     Return: shape (b s s)
-    '''
+    '''q
     d_k = math.sqrt(Q.shape[-1])
     scaled_dot_prod: Tensor = einsum('b s1 c, b s2 c -> b s1 s2', Q, K) / d_k
     if mask is not None:
         scaled_dot_prod = scaled_dot_prod.masked_fill(mask == 0, -1e9)
-    return scaled_dot_prod.softmax(dim=-1)
+    return scaled_dot_prod.softmax(dim=-1) @ V
 
 def test_masked_attention():
     Q = t.randn(2, 3, 4)
@@ -119,9 +119,10 @@ class MultiheadMaskedAttention(nn.Module):
 
 
 
-    
-
-    
+Q = t.arange(2 * 7 * 3).reshape(2, 7, 3).type(t.float32)
+K = Q * 0.5
+V = Q * 0.8
+print(singlehead_attention(Q,K,V))
 
 
 
