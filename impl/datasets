@@ -1,0 +1,36 @@
+from torch.utils.data import Dataset, DataLoader, random_split
+import torch.nn.functional as F
+
+# random_split(nums_ds, [8000, 2000])
+# nums_dl = DataLoader(train_ds, batch_size=64, shuffle=True)
+
+class TestDataSet(Dataset):
+    """A toy dataset to train a model to predict
+     a random sequence of tokens."""
+    
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        self.seq_len = 25
+        self.total_size = 1000
+        self.text = t.randint(0,config.vocab_size, (self.total_size, self.seq_len)).to(config.device)
+        
+    def __len__(self):
+        return self.total_size
+
+    def __getitem__(self, idx):
+        label = self.text[idx,1:]
+        text = self.text[idx,:-1]
+        return (text, label)
+
+class ReversedNumbers(Dataset):
+    def __init__(self, vocab_size: int, seq_len: int, datasize: int):
+        self.seqs = t.randint(0, vocab_size, (datasize, seq_len))
+
+    def __len__(self):
+            return len(self.seqs)
+
+    def __getitem__(self, idx):
+            input = self.seqs[idx]
+            target = t.flip(input, dims=(0,))
+            return (input, target)
